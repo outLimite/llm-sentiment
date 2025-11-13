@@ -1,3 +1,10 @@
+# Sentiment Analysis with PEFT
+
+Проект для анализа тональности с использованием методов эффективной тонкой настройки.
+
+## Структура проекта
+
+```
 sentiment-analysis-peft/
 ├── src/
 │   ├── data/
@@ -30,4 +37,6 @@ sentiment-analysis-peft/
 │   └── demo.py               # Демо с интерфейсом
 ├── requirements.txt
 ├── setup.py
+├── .gitattributes
 └── README.md
+```
