@@ -51,15 +51,37 @@ train_dataloader = DataLoader(
     collate_fn=collate_fn,
 )
 
-trainer = PEFTTrainerWithNeptune(
-    "OuteAI/Lite-Oute-1-300M-Instruct",
-    model, 
-    train_dataloader, 
-    processed_dataset["validation"], 
-    tokenizer_wrapper.tokenizer,
-    config,
-)
+print("=== ДЕБАГГИНГ МОДЕЛИ ===")
+print(f"Тип модели: {type(model)}")
+print(f"Модель device: {model.device}")
+print(f"Всего параметров: {len(list(model.parameters()))}")
 
+# Проверяем обучаемые параметры
+trainable_params = [p for p in model.parameters() if p.requires_grad]
+print(f"Обучаемые параметры: {len(trainable_params)}")
+
+if len(trainable_params) == 0:
+    print("ВНИМАНИЕ: Нет обучаемых параметров!")
+    # Проверяем, какие модули есть в модели
+    print("Модули модели:")
+    for name, module in model.named_modules():
+        if len(list(module.parameters())) > 0:
+            print(f"  {name}: {len(list(module.parameters()))} параметров")
+    
+    # Временно размораживаем все параметры для теста
+    for param in model.parameters():
+        param.requires_grad = True
+    print("Все параметры разморожены для теста")
+
+trainer = PEFTTrainerWithNeptune(
+    MODEL_NAME=MODEL_NAME,
+    model=model,
+    train_dataloader=train_dataloader,
+    val_dataset= processed_dataset["validation"],
+    tokenizer=tokenizer_wrapper.tokenizer,       
+    config=config,            
+    neptune_run=run   
+)
 trainer.train()
 
 trainer.save_checkpoint("checkpoint/OuteAI/Lite-Oute-1-300M-Instruct")

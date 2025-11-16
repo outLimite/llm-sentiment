@@ -1,0 +1,18 @@
+{"obj": {"type": "AssignString", "path": ["sys", "description"], "value": ""}, "version": 1, "at": 1763330644.312219}
+{"obj": {"type": "AssignString", "path": ["monitoring", "e4ddca41", "hostname"], "value": "Mac"}, "version": 2, "at": 1763330644.312505}
+{"obj": {"type": "AssignString", "path": ["sys", "hostname"], "value": "Mac"}, "version": 3, "at": 1763330644.312619}
+{"obj": {"type": "AssignString", "path": ["monitoring", "e4ddca41", "pid"], "value": "48341"}, "version": 4, "at": 1763330644.312716}
+{"obj": {"type": "AssignString", "path": ["monitoring", "e4ddca41", "tid"], "value": "8623825088"}, "version": 5, "at": 1763330644.312804}
+{"obj": {"type": "AddStrings", "path": ["sys", "tags"], "values": ["lora", "tweet-classification", "peft"]}, "version": 6, "at": 1763330644.3131351}
+{"obj": {"type": "AssignBool", "path": ["sys", "failed"], "value": false}, "version": 7, "at": 1763330644.31319}
+{"obj": {"type": "ClearStringLog", "path": ["monitoring", "e4ddca41", "stdout"]}, "version": 8, "at": 1763330644.313304}
+{"obj": {"type": "ClearStringLog", "path": ["monitoring", "e4ddca41", "stderr"]}, "version": 9, "at": 1763330644.313379}
+{"obj": {"type": "AssignString", "path": ["source_code", "entrypoint"], "value": "train_lora.py"}, "version": 10, "at": 1763330644.3136609}
+{"obj": {"type": "UploadFileSet", "path": ["source_code", "files"], "file_globs": ["/Users/outlimite/Desktop/\u0423\u0447\u0435\u0431\u043d\u044b\u0435 \u043c\u0430\u0442\u0435\u0440\u0438\u0430\u043b\u044b/llm-sentiment/src/scripts/train_lora.py"], "reset": "False"}, "version": 11, "at": 1763330644.3137438}
+{"obj": {"type": "UploadFile", "path": ["source_code", "diff"], "ext": "patch", "file_path": null, "tmp_file_name": "source_code_diff-1763330644.361765-2025-11-17_01.04.04.361765.patch", "clean_after_upload": false}, "version": 12, "at": 1763330644.362379}
+{"obj": {"type": "ConfigFloatSeries", "path": ["monitoring", "e4ddca41", "cpu"], "min": 0.0, "max": 100.0, "unit": "%"}, "version": 13, "at": 1763330644.3725948}
+{"obj": {"type": "ClearFloatLog", "path": ["monitoring", "e4ddca41", "cpu"]}, "version": 14, "at": 1763330644.372683}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "e4ddca41", "stderr"], "values": [{"value": "[neptune] [warning] /Users/outlimite/Desktop/\u0423\u0447\u0435\u0431\u043d\u044b\u0435 \u043c\u0430\u0442\u0435\u0440\u0438\u0430\u043b\u044b/llm-sentiment/src/scripts/train_lora.py:19: NeptuneWarning: Info (NVML): NVML Shared Library Not Found. GPU usage metrics may not be reported. For more information, see https://docs-legacy.neptune.ai/help/nvml_error/\n", "step": null, "ts": 1763330644.37274}]}, "version": 15, "at": 1763330644.372774}
+{"obj": {"type": "ConfigFloatSeries", "path": ["monitoring", "e4ddca41", "memory"], "min": 0.0, "max": 16.0, "unit": "GB"}, "version": 16, "at": 1763330644.372941}
+{"obj": {"type": "ClearFloatLog", "path": ["monitoring", "e4ddca41", "memory"]}, "version": 17, "at": 1763330644.372968}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "e4ddca41", "memory"], "values": [{"value": 11.168716430664062, "step": null, "ts": 1763330644.3731031}]}, "version": 18, "at": 1763330644.3732438}

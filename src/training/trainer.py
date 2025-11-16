@@ -177,11 +177,17 @@ class PEFTTrainerWithNeptune(PEFTTrainer):
     """
     PEFTTrainer with Neptune.ai integration.
     """
-    
-    def __init__(self, MODEL_NAME: str, *args, **kwargs):
-        self.neptune_run = kwargs.pop('neptune_run', None)
-        self.MODEL_NAME = MODEL_NAME if MODEL_NAME else " "
-        super().__init__(*args, **kwargs)
+
+    def __init__(self, model, train_dataloader, val_dataset, tokenizer, config, MODEL_NAME: str = None, neptune_run=None):
+        self.neptune_run = neptune_run
+        self.MODEL_NAME = MODEL_NAME if MODEL_NAME else "default_model"
+        super().__init__(
+            model=model,
+            train_dataloader=train_dataloader,
+            val_dataset=val_dataset,
+            tokenizer=tokenizer,
+            config=config
+        )
         
     def train_epoch(self) -> float:
         """Train for one epoch with Neptune logging."""

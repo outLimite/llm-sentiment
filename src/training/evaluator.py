@@ -80,7 +80,7 @@ class ModelEvaluator:
             input_ids, 
             padding_value=self.tokenizer.pad_token_id,
             padding_side="left"
-        ).to(model.device)
+        )
         
         attention_mask = (input_ids != self.tokenizer.pad_token_id).long()
         
