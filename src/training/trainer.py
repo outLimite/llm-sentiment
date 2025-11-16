@@ -6,12 +6,19 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import logging
 
 from .evaluator import evaluate_model
 from .utils import get_optimizer, get_lr_scheduler
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    filename="logging/app.log",
+    filemode="w",
+    )
 logger = logging.getLogger(__name__)
 
 
@@ -164,6 +171,130 @@ class PEFTTrainer:
         self.global_step = checkpoint['global_step']
         self.best_f1 = checkpoint['best_f1']
         logger.info(f"Loaded checkpoint from {path}")
+
+
+class PEFTTrainerWithNeptune(PEFTTrainer):
+    """
+    PEFTTrainer with Neptune.ai integration.
+    """
+    
+    def __init__(self, MODEL_NAME: str, *args, **kwargs):
+        self.neptune_run = kwargs.pop('neptune_run', None)
+        self.MODEL_NAME = MODEL_NAME if MODEL_NAME else " "
+        super().__init__(*args, **kwargs)
+        
+    def train_epoch(self) -> float:
+        """Train for one epoch with Neptune logging."""
+        self.model.train()
+        total_loss = 0.0
+        
+        progress_bar = tqdm(
+            self.train_dataloader, 
+            desc=f"Epoch {self.current_epoch + 1}",
+            leave=False
+        )
+        
+        for step, batch in enumerate(progress_bar):
+            batch = self._prepare_batch(batch)
+            
+            outputs = self.model(**batch)
+            loss = outputs.loss
+            
+            loss.backward()
+            
+            torch.nn.utils.clip_grad_norm_(
+                self.model.parameters(), 
+                self.config.max_grad_norm
+            )
+            
+            self.optimizer.step()
+            self.scheduler.step()
+            self.optimizer.zero_grad()
+            
+            total_loss += loss.item()
+            self.global_step += 1
+            
+            if self.neptune_run:
+                self.neptune_run["train/batch/loss"].append(loss.item())
+                self.neptune_run["train/batch/learning_rate"].append(
+                    self.scheduler.get_last_lr()[0]
+                )
+                self.neptune_run["train/batch/global_step"].append(self.global_step)
+            
+            progress_bar.set_postfix({
+                "loss": f"{loss.item():.4f}",
+                "lr": f"{self.scheduler.get_last_lr()[0]:.2e}"
+            })
+            
+            if (step + 1) % self.config.eval_steps == 0:
+                avg_loss = total_loss / (step + 1)
+                logger.info(
+                    f"Epoch {self.current_epoch + 1}, Step {step + 1}: "
+                    f"Loss = {avg_loss:.4f}, LR = {self.scheduler.get_last_lr()[0]:.2e}"
+                )
+        
+        epoch_loss = total_loss / len(self.train_dataloader)
+        return epoch_loss
+    
+    def evaluate(self) -> float:
+        """Evaluate model with Neptune logging."""
+        logger.info("Running evaluation...")
+        f1_score = evaluate_model(
+            self.model, 
+            self.val_dataset, 
+            self.tokenizer,
+            batch_size=self.config.eval_batch_size,
+            show_conf_m=False
+        )
+        
+        if self.neptune_run:
+            self.neptune_run["validation/f1_score"].append(f1_score)
+            self.neptune_run["validation/epoch"].append(self.current_epoch)
+        
+        return f1_score
+    
+    def train(self) -> nn.Module:
+        """Full training loop with Neptune logging."""
+        logger.info("Starting training...")
+        
+        if self.neptune_run:
+            self.neptune_run["config"] = {
+                "model_name": self.MODEL_NAME,
+                "learning_rate": self.config.learning_rate,
+                "batch_size": self.config.batch_size,
+                "num_epochs": self.config.num_epochs,
+                "lora_rank": self.config.lora_rank,
+                "lora_alpha": self.config.lora_alpha,
+                "max_grad_norm": self.config.max_grad_norm,
+                "weight_decay": self.config.weight_decay,
+            }
+        
+        for epoch in range(self.config.num_epochs):
+            self.current_epoch = epoch
+            
+            train_loss = self.train_epoch()
+            val_f1 = self.evaluate()
+            
+            if self.neptune_run:
+                self.neptune_run["train/epoch/loss"].append(train_loss)
+                self.neptune_run["train/epoch/epoch"].append(epoch)
+                self.neptune_run["validation/best_f1"] = self.best_f1
+            
+            logger.info(
+                f"Epoch {epoch + 1}/{self.config.num_epochs} | "
+                f"Train Loss: {train_loss:.4f} | "
+                f"Val F1: {val_f1:.4f}"
+            )
+            
+            if val_f1 > self.best_f1:
+                self.best_f1 = val_f1
+                logger.info(f"New best F1: {val_f1:.4f}")
+                
+                if self.neptune_run:
+                    self.neptune_run["validation/best_f1"] = val_f1
+        
+        logger.info(f"Training completed. Best F1: {self.best_f1:.4f}")
+        return self.model
 
 
 def train_model(model, optimizer, train_dataloader, val_dataset, num_epochs):
