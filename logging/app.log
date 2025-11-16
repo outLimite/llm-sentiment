@@ -1,0 +1,9 @@
+2025-11-16 22:10:05 [INFO] src.models.base: Using device: mps
+2025-11-16 22:10:06 [INFO] src.data.dataset: Loading dataset: cardiffnlp/tweet_eval task: sentiment
+2025-11-16 22:10:09 [INFO] src.data.dataset: Dataset loaded succesfully. Splits: ['train', 'test', 'validation']
+2025-11-16 22:10:09 [INFO] src.data.dataset: Train set size 45615
+2025-11-16 22:10:09 [INFO] src.data.dataset: Validation set size 2000
+2025-11-16 22:10:09 [INFO] src.data.dataset: Test set size 12284
+2025-11-16 22:10:09 [INFO] src.data.preprocessing: Preprocessing train split...
+2025-11-16 22:10:10 [INFO] src.data.preprocessing: Preprocessing test split...
+2025-11-16 22:10:10 [INFO] src.data.preprocessing: Preprocessing validation split...
