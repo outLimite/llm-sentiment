@@ -52,7 +52,8 @@ def get_lora_config() -> TrainingConfig:
         num_epochs=3,
         lora_rank=8,
         lora_alpha=16,
-        target_modules=("k_proj", "v_proj")
+        target_modules=("k_proj", "v_proj"),
+        weight_decay=5e-4
     )
 
 
