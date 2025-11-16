@@ -1,0 +1,3 @@
+Tweet: {text}
+Instruction: Determine the sentiment of the tweet as Positive, Neutral, or Negative. 
+Only provide the sentiment label.
