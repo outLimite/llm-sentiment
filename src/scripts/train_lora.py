@@ -42,7 +42,7 @@ config = get_lora_config()
 
 apply_peft_to_model(model, LinearWithLoRA, config.lora_rank, config.lora_alpha, config.target_modules)
 
-model = freeze_layers(model, ["lora"])
+model = freeze_layers(model, config.target_modules)
 
 train_dataloader = DataLoader(
     processed_dataset["train"],
@@ -50,28 +50,6 @@ train_dataloader = DataLoader(
     shuffle=True,
     collate_fn=collate_fn,
 )
-
-print("=== ДЕБАГГИНГ МОДЕЛИ ===")
-print(f"Тип модели: {type(model)}")
-print(f"Модель device: {model.device}")
-print(f"Всего параметров: {len(list(model.parameters()))}")
-
-# Проверяем обучаемые параметры
-trainable_params = [p for p in model.parameters() if p.requires_grad]
-print(f"Обучаемые параметры: {len(trainable_params)}")
-
-if len(trainable_params) == 0:
-    print("ВНИМАНИЕ: Нет обучаемых параметров!")
-    # Проверяем, какие модули есть в модели
-    print("Модули модели:")
-    for name, module in model.named_modules():
-        if len(list(module.parameters())) > 0:
-            print(f"  {name}: {len(list(module.parameters()))} параметров")
-    
-    # Временно размораживаем все параметры для теста
-    for param in model.parameters():
-        param.requires_grad = True
-    print("Все параметры разморожены для теста")
 
 trainer = PEFTTrainerWithNeptune(
     MODEL_NAME=MODEL_NAME,
